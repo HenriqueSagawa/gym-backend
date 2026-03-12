@@ -7,3 +7,10 @@ export interface JwtPayload {
   iat?: number;
   exp?: number;
 }
+
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  message?: string | undefined;
+  data?: T | undefined;
+  error?: string | undefined;
+}
