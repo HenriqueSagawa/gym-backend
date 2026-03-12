@@ -19,6 +19,7 @@ async function bootstrap() {
   }
 }
 
+bootstrap();
 process.on("SIGINT", async () => {
   await prisma.$disconnect();
   console.log("Banco de dados desconectado");
