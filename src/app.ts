@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import router from "./routes";
 
 const app = express();
 
@@ -23,5 +24,7 @@ app.get("/health", (_req, res) => {
     version: process.env.npm_package_version || "1.0.0",
   });
 });
+
+app.use("/api/v1", router);
 
 export default app;
