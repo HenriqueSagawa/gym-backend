@@ -25,10 +25,12 @@ model Gym {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users          User[]
-  professionals  Professional[]
-  equipment      Equipment[]
-  operatingHours OperatingHours[]
+  users           User[]
+  professionals   Professional[]
+  equipment       Equipment[]
+  operatingHours  OperatingHours[]
+  workoutRequests WorkoutRequest[]
+  calendarEvents  CalendarEvent[]
 }
 
 model User {
@@ -46,7 +48,9 @@ model User {
   updatedAt     DateTime  @updatedAt
   showInRanking Boolean   @default(true)
 
-  gym Gym @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  gym                Gym                 @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  workoutRequests    WorkoutRequest[]
+  workoutCompletions WorkoutCompletion[]
 
   @@unique([gymId, email])
   @@index([gymId])
@@ -66,7 +70,8 @@ model Professional {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  gym Gym @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  gym             Gym              @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  workoutRequests WorkoutRequest[]
 
   @@unique([gymId, email])
   @@index([gymId])
@@ -84,7 +89,8 @@ model Equipment {
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
-  gym Gym @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  gym       Gym        @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  exercises Exercise[]
 
   @@index([gymId])
 }
@@ -106,4 +112,161 @@ model OperatingHours {
   gym Gym @relation(fields: [gymId], references: [id], onDelete: Cascade)
 
   @@unique([gymId, dayOfWeek])
+}
+
+enum WorkoutRequestType {
+  PROFESSIONAL
+  AI
+}
+
+enum WorkoutRequestStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+}
+
+enum WorkoutGoal {
+  LOSE_WEIGHT
+  GAIN_MUSCLE
+  MAINTAIN_HEALTH
+  INCREASE_STRENGTH
+  FLEXIBILITY
+  REHABILITATION
+}
+
+enum WorkoutIntensity {
+  LIGHT
+  MODERATE
+  HEAVY
+}
+
+enum WorkoutDuration {
+  SHORT
+  MEDIUM
+  LONG
+}
+
+enum WorkoutFrequency {
+  DAILY
+  SOME_DAYS
+  FEW_DAYS
+}
+
+model WorkoutRequest {
+  id              String               @id @default(uuid())
+  gymId           String
+  userId          String
+  professionalId  String?
+  type            WorkoutRequestType   @default(PROFESSIONAL)
+  status          WorkoutRequestStatus @default(PENDING)
+  goal            WorkoutGoal
+  intensity       WorkoutIntensity
+  duration        WorkoutDuration
+  frequency       WorkoutFrequency
+  additionalNotes String?
+  rejectedReason  String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  gym          Gym           @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  professional Professional? @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  workout Workout? @relation(fields: [workoutId], references: [id])
+
+  workoutId String?
+
+  @@index([gymId, userId])
+  @@index([gymId, professionalId])
+}
+
+model Workout {
+  id          String   @id @default(uuid())
+  requestId   String   @unique
+  name        String?
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workoutRequests    WorkoutRequest[]
+  trainingDays       TrainingDay[]
+  workoutCompletions WorkoutCompletion[]
+}
+
+model TrainingDay {
+  id          String   @id @default(uuid())
+  workoutId   String
+  label       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workout            Workout             @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercises          Exercise[]
+  workoutCompletions WorkoutCompletion[]
+}
+
+model Exercise {
+  id            String   @id @default(uuid())
+  trainingDayId String
+  equipmentId   String?
+  name          String
+  sets          Int
+  reps          Int
+  restSeconds   Int?     @default(60)
+  notes         String?
+  videoUrl      String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  trainingDay TrainingDay @relation(fields: [trainingDayId], references: [id], onDelete: Cascade)
+  equipment   Equipment?  @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@index([trainingDayId])
+}
+
+model WorkoutCompletion {
+  id            String    @id @default(uuid())
+  userId        String
+  workoutId     String
+  trainingDayId String
+  durationMin   Int?
+  notes         String?
+  completedAt   DateTime?
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workout     Workout     @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  trainingDay TrainingDay @relation(fields: [trainingDayId], references: [id], onDelete: Cascade)
+
+  @@index([userId, completedAt])
+}
+
+model CalendarEvent {
+  id          String            @id @default(uuid())
+  gymId       String
+  title       String
+  description String?
+  date        DateTime
+  type        CalendarEventType
+  isClosed    Boolean           @default(false)
+  openTime    String?
+  closeTime   String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  gym Gym @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@index([gymId, date])
+}
+
+enum CalendarEventType {
+  HOLIDAY
+  RECESS
+  MOURNING
+  SPECIAL_EVENT
+  CLOSURE
+  OTHER
 }
