@@ -14,18 +14,20 @@ enum GymPlan {
 }
 
 model Gym {
-  id            String         @id @default(uuid())
-  name          String
-  email         String         @unique
-  phone         String?
-  address       String?
-  logoUrl       String?
-  plan          GymPlan        @default(BASIC)
-  isActive      Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  address   String?
+  logoUrl   String?
+  plan      GymPlan  @default(BASIC)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   users         User[]
   professionals Professional[]
+  equipment     Equipment[]
 }
 
 model User {
@@ -67,4 +69,27 @@ model Professional {
 
   @@unique([gymId, email])
   @@index([gymId])
+}
+
+model Equipment {
+  id          String          @id @default(uuid())
+  gymId       String
+  name        String
+  photoUrl    String?
+  description String?
+  usageTips   String?
+  muscleGroup String?
+  status      EquipmentStatus @default(AVAILABLE)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  gym Gym @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@index([gymId])
+}
+
+enum EquipmentStatus {
+  AVAILABLE
+  MAINTENANCE
+  INACTIVE
 }
