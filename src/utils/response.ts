@@ -31,7 +31,7 @@ export function unauthorized(res: Response, message = "Não autorizado") {
   return res.status(401).json({ success: false, error: message });
 }
 
-export function forbidden(res: Response, message: "Acesso negado") {
+export function forbidden(res: Response, message = "Acesso negado") {
   return res.status(403).json({ success: false, error: message });
 }
 
