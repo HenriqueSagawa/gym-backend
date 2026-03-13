@@ -1,4 +1,5 @@
 import { prisma } from "../config/database";
+import type { Prisma } from "../../generated/prisma/client";
 import bcrypt from "bcrypt";
 
 export class UserService {
@@ -97,9 +98,19 @@ export class UserService {
       showInRanking?: boolean | undefined;
     },
   ) {
+    const updateData: Prisma.UserUpdateInput = {};
+
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.phone !== undefined) updateData.phone = data.phone;
+    if (data.avatarUrl !== undefined) updateData.avatarUrl = data.avatarUrl;
+    if (data.bio !== undefined) updateData.bio = data.bio;
+    if (data.birthDate !== undefined) updateData.birthDate = data.birthDate;
+    if (data.showInRanking !== undefined)
+      updateData.showInRanking = data.showInRanking;
+
     return prisma.user.update({
       where: { id },
-      data,
+      data: updateData,
       select: {
         id: true,
         name: true,
