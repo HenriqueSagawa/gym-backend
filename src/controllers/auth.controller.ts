@@ -6,8 +6,8 @@ import * as R from "../utils/response";
 const authService = new AuthService();
 
 const loginSchema = z.object({
-  gymId: z.string().uuid().optional(),
-  email: z.string().email(),
+  gymId: z.uuid().optional(),
+  email: z.email(),
   password: z.string().min(6),
 });
 
@@ -25,7 +25,7 @@ export class AuthController {
       const result = await authService.loginUser(gymId, email, password);
       return R.success(res, result, "Login realizado com sucesso");
     } catch (error) {
-      return next(error);
+      return R.forbidden(res);
     }
   }
 
