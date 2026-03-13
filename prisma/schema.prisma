@@ -25,9 +25,10 @@ model Gym {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users         User[]
-  professionals Professional[]
-  equipment     Equipment[]
+  users          User[]
+  professionals  Professional[]
+  equipment      Equipment[]
+  operatingHours OperatingHours[]
 }
 
 model User {
@@ -92,4 +93,17 @@ enum EquipmentStatus {
   AVAILABLE
   MAINTENANCE
   INACTIVE
+}
+
+model OperatingHours {
+  id        String  @id @default(uuid())
+  gymId     String
+  dayOfWeek Int
+  openTime  String
+  closeTime String
+  isClosed  Boolean @default(false)
+
+  gym Gym @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@unique([gymId, dayOfWeek])
 }
