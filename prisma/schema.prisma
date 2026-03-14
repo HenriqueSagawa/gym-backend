@@ -172,10 +172,7 @@ model WorkoutRequest {
   gym          Gym           @relation(fields: [gymId], references: [id], onDelete: Cascade)
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   professional Professional? @relation(fields: [professionalId], references: [id], onDelete: Cascade)
-
-  workout Workout? @relation(fields: [workoutId], references: [id])
-
-  workoutId String?
+  workout      Workout?
 
   @@index([gymId, userId])
   @@index([gymId, professionalId])
@@ -190,9 +187,9 @@ model Workout {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  workoutRequests    WorkoutRequest[]
-  trainingDays       TrainingDay[]
-  workoutCompletions WorkoutCompletion[]
+  request      WorkoutRequest      @relation(fields: [requestId], references: [id])
+  trainingDays TrainingDay[]
+  completions  WorkoutCompletion[]
 }
 
 model TrainingDay {
@@ -203,9 +200,9 @@ model TrainingDay {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  workout            Workout             @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-  exercises          Exercise[]
-  workoutCompletions WorkoutCompletion[]
+  workout     Workout             @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercises   Exercise[]
+  completions WorkoutCompletion[]
 }
 
 model Exercise {
