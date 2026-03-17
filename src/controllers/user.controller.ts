@@ -10,11 +10,12 @@ function q(val: unknown): string {
 
 const createUserSchema = z.object({
   name: z.string().min(2),
-  email: z.string().email(),
+  email: z.email(),
   phone: z.string().optional(),
   birthDate: z.string().datetime().optional(),
   password: z.string().min(6),
 });
+
 const updateProfileSchema = z.object({
   name: z.string().min(2).optional(),
   phone: z.string().optional(),
@@ -44,7 +45,7 @@ export class UserController {
       const data = createUserSchema.parse(req.body);
       const user = await userService.create({
         ...data,
-        gymId: req.user!.gymId,
+        gymId: String(req.params.gymId),
         birthDate: data.birthDate ? new Date(data.birthDate) : undefined,
       });
       return R.created(res, user, "Cadastro realizado com sucesso");

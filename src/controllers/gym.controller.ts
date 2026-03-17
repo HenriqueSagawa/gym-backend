@@ -54,7 +54,7 @@ export class GymController {
 
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const gym = await gymService.findById(String(req.params.id));
+      const gym = await gymService.findById(String(req.params.gymId));
       if (!gym) return R.notFound(res, "Academia não encontrada");
       return R.success(res, gym);
     } catch (error) {

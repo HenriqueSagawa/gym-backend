@@ -20,7 +20,7 @@ router.post(
 router.get("/auth/me", authenticate, auth.me.bind(auth));
 
 router.post("/gyms", gym.create.bind(gym));
-router.get("/gym/:gymId", gym.getById.bind(gym));
+router.get("/gyms/:gymId", gym.getById.bind(gym));
 router.put(
   "/gyms/me",
   authenticate,
